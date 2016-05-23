@@ -1,4 +1,50 @@
 /**************************************
+  $MEDIA QUERIES
+**************************************/
+// http://foundation.zurb.com
+
+/**
+ * Ranges
+ */
+@function lower-bound($range) {
+  @if length($range) <= 0 {
+    @return 0;
+  }
+  @return nth($range, 1);
+}
+
+@function upper-bound($range) {
+  @if length($range) < 2 {
+    @return 999999999999;
+  }
+  @return nth($range, 2);
+}
+
+/**
+ * Breakpoints
+ */
+$breakpoint1: 48rem; // 768
+$breakpoint2: 64rem; // 1024
+$breakpoint3: 80rem; // 1280
+$breakpoint4: 100rem; // 1600
+
+// Define the lower and upper bounds for each media size
+$sm-range:    (0, $breakpoint1 - 0.01rem); // 0 - 767
+$sm-md-range: ($breakpoint1, $breakpoint2 - 0.01rem); // 768 - 1023
+$md-lg-range: ($breakpoint2, $breakpoint3 - 0.01rem); // 1024 - 1279
+$lg-xl-range: ($breakpoint3, $breakpoint4 - 0.01rem); // 1280 - 1599
+$xl-range:    ($breakpoint4); // 1600 +
+
+/**
+ * Queries
+ */
+$mobile-only: "(max-width: #{upper-bound($sm-range)})" !default;
+$tablet:      "(min-width: #{lower-bound($sm-md-range)})" !default;
+$laptop:      "(min-width: #{lower-bound($md-lg-range)})" !default;
+$desktop:     "(min-width: #{lower-bound($lg-xl-range)})" !default;
+$widescreen:  "(min-width: #{lower-bound($xl-range)})" !default;
+
+/**************************************
   $ANIMATION
 **************************************
 * Created by James Bosworth - Based on Google Material Design Spec
@@ -6,67 +52,93 @@
 * https://www.google.com/design/spec/motion/movement.html
 *
 * USAGE:
-* @include transition(standard) {
-*   transition-property: all;
-* };
+* @include transition(deceleration, width);
+* or just
+* @include transition(standard);
 */
 
-@mixin transition($name) {
+$standard-curve:      cubic-bezier(0.4, 0.0, 0.2, 1);
+$deceleration-curve:  cubic-bezier(0.0, 0.0, 0.2, 1);
+$acceleration-curve:  cubic-bezier(0.4, 0.0, 1, 1);
+$sharp-curve:         cubic-bezier(0.4, 0.0, 0.6, 1);
 
-  // Standard curve
-  // This is the most common easing curve. Objects quickly accelerate and
-  // slowly decelerate between on-screen locations. It applies to growing
-  // and shrinking material, among other property changes
-  @if $name == standard {
-    @content;
-    transition-duration: 200ms;
-    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-    @media #{$tablet}     {transition-duration: 275ms;}
-    @media #{$desktop}    {transition-duration: 300ms;}
-    @media #{$widescreen} {transition-duration: 375ms;}
-  }
+@mixin transition($name: null, $property: all) {
+  @if $name != null {
+    // Standard curve
+    // This is the most common easing curve. Objects quickly accelerate and
+    // slowly decelerate between on-screen locations. It applies to growing
+    // and shrinking material, among other property changes
+    @if $name == standard {
+      transition: $property 200ms $standard-curve;
 
-  // Deceleration curve (“Easing out”)
-  // Objects enter the screen at full velocity from off-screen and
-  // slowly decelerate to a resting point. During deceleration,
-  // objects may scale up either in size (to 100%) or opacity (to 100%).
-  // In some cases, when objects enter the screen at 0% opacity,
-  // they may slightly shrink from a larger size upon entry.
-  @else if $name == deceleration {
-    @content;
-    transition-duration: 225ms;
-    transition-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
-    @media #{$tablet}     {transition-duration: 295ms;}
-    @media #{$desktop}    {transition-duration: 325ms;}
-    @media #{$widescreen} {transition-duration: 395ms;}
-  }
+      @media #{$tablet} {
+        transition: $property 275ms $standard-curve;
+      }
+      @media #{$desktop} {
+        transition: $property 300ms $standard-curve;
+      }
+      @media #{$widescreen} {
+        transition: $property 375ms $standard-curve;
+      }
+    }
 
-  // Acceleration curve (“Easing in”)
-  // Objects leave the screen at full velocity. They do not decelerate when off-screen.
-  // They accelerate at the beginning of the animation and may scale down in
-  // either size (to 0%) or opacity (to 0%). In some cases, when objects leave
-  // the screen at 0% opacity, they may also slightly scale up or down in size.
-  @else if $name == acceleration {
-    @content;
-    transition-duration: 195ms;
-    transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
-    @media #{$tablet}     {transition-duration: 225ms;}
-    @media #{$desktop}    {transition-duration: 275ms;}
-    @media #{$widescreen} {transition-duration: 300ms;}
-  }
+    // Deceleration curve (“Easing out”)
+    // Objects enter the screen at full velocity from off-screen and
+    // slowly decelerate to a resting point. During deceleration,
+    // objects may scale up either in size (to 100%) or opacity (to 100%).
+    // In some cases, when objects enter the screen at 0% opacity,
+    // they may slightly shrink from a larger size upon entry.
+    @else if $name == deceleration {
+      transition: $property 225ms $deceleration-curve;
 
-  // Sharp curve
-  // The sharp curve is used by objects that may return to the screen at any time.
-  // Objects may quickly accelerate from a starting point on-screen, then quickly
-  // decelerate in a symmetrical curve to a resting point immediately off-screen.
-  // The deceleration is faster than the standard curve since it doesn't follow an
-  // exact path to the off-screen point. Objects may return from that point at any time.
-  @else if $name == sharp {
-    @content;
-    transition-duration: 300ms;
-    transition-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1);
-    @media #{$tablet}     {transition-duration: 325ms;}
-    @media #{$desktop}    {transition-duration: 375ms;}
-    @media #{$widescreen} {transition-duration: 395ms;}
+      @media #{$tablet} {
+        transition: $property 295ms $deceleration-curve;
+      }
+      @media #{$desktop} {
+        transition: $property 325ms $deceleration-curve;
+      }
+      @media #{$widescreen} {
+        transition: $property 395ms $deceleration-curve;
+      }
+    }
+
+    // Acceleration curve (“Easing in”)
+    // Objects leave the screen at full velocity. They do not decelerate when off-screen.
+    // They accelerate at the beginning of the animation and may scale down in
+    // either size (to 0%) or opacity (to 0%). In some cases, when objects leave
+    // the screen at 0% opacity, they may also slightly scale up or down in size.
+    @else if $name == acceleration {
+      transition: $property 195ms $acceleration-curve;
+
+      @media #{$tablet} {
+        transition: $property 225ms $acceleration-curve;
+      }
+      @media #{$desktop} {
+        transition: $property 275ms $acceleration-curve;
+      }
+      @media #{$widescreen} {
+        transition: $property 300ms $acceleration-curve;
+      }
+    }
+
+    // Sharp curve
+    // The sharp curve is used by objects that may return to the screen at any time.
+    // Objects may quickly accelerate from a starting point on-screen, then quickly
+    // decelerate in a symmetrical curve to a resting point immediately off-screen.
+    // The deceleration is faster than the standard curve since it doesn't follow an
+    // exact path to the off-screen point. Objects may return from that point at any time.
+    @else if $name == sharp {
+      transition: $property 300ms $sharp-curve;
+
+      @media #{$tablet} {
+        transition: $property 325ms $sharp-curve;
+      }
+      @media #{$desktop} {
+        transition: $property 375ms $sharp-curve;
+      }
+      @media #{$widescreen} {
+        transition: $property 395ms $sharp-curve;
+      }
+    }
   }
 }
