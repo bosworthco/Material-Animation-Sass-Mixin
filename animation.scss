@@ -1,0 +1,72 @@
+/**************************************
+  $ANIMATION
+**************************************
+* Created by James Bosworth - Based on Google Material Design Spec
+* https://www.google.com/design/spec/motion/duration-easing.html
+* https://www.google.com/design/spec/motion/movement.html
+*
+* USAGE:
+* @include transition(standard) {
+*   transition-property: all;
+* };
+*/
+
+@mixin transition($name) {
+
+  // Standard curve
+  // This is the most common easing curve. Objects quickly accelerate and
+  // slowly decelerate between on-screen locations. It applies to growing
+  // and shrinking material, among other property changes
+  @if $name == standard {
+    @content;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+    @media #{$tablet}     {transition-duration: 275ms;}
+    @media #{$desktop}    {transition-duration: 300ms;}
+    @media #{$widescreen} {transition-duration: 375ms;}
+  }
+
+  // Deceleration curve (“Easing out”)
+  // Objects enter the screen at full velocity from off-screen and
+  // slowly decelerate to a resting point. During deceleration,
+  // objects may scale up either in size (to 100%) or opacity (to 100%).
+  // In some cases, when objects enter the screen at 0% opacity,
+  // they may slightly shrink from a larger size upon entry.
+  @else if $name == deceleration {
+    @content;
+    transition-duration: 225ms;
+    transition-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+    @media #{$tablet}     {transition-duration: 295ms;}
+    @media #{$desktop}    {transition-duration: 325ms;}
+    @media #{$widescreen} {transition-duration: 395ms;}
+  }
+
+  // Acceleration curve (“Easing in”)
+  // Objects leave the screen at full velocity. They do not decelerate when off-screen.
+  // They accelerate at the beginning of the animation and may scale down in
+  // either size (to 0%) or opacity (to 0%). In some cases, when objects leave
+  // the screen at 0% opacity, they may also slightly scale up or down in size.
+  @else if $name == acceleration {
+    @content;
+    transition-duration: 195ms;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
+    @media #{$tablet}     {transition-duration: 225ms;}
+    @media #{$desktop}    {transition-duration: 275ms;}
+    @media #{$widescreen} {transition-duration: 300ms;}
+  }
+
+  // Sharp curve
+  // The sharp curve is used by objects that may return to the screen at any time.
+  // Objects may quickly accelerate from a starting point on-screen, then quickly
+  // decelerate in a symmetrical curve to a resting point immediately off-screen.
+  // The deceleration is faster than the standard curve since it doesn't follow an
+  // exact path to the off-screen point. Objects may return from that point at any time.
+  @else if $name == sharp {
+    @content;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1);
+    @media #{$tablet}     {transition-duration: 325ms;}
+    @media #{$desktop}    {transition-duration: 375ms;}
+    @media #{$widescreen} {transition-duration: 395ms;}
+  }
+}
